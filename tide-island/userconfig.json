@@ -1,0 +1,151 @@
+// =============================================================================
+//  Tide Island - User Configuration
+// =============================================================================
+//  Changes take effect immediately when this file is saved.
+//  This file supports // line comments and /* block comments */.
+
+{
+    // ===========================================================================
+    //  APPEARANCE  - Island capsule size & position
+    // ===========================================================================
+
+    // Capsule width in resting (collapsed) state, in pixels.
+    "islandWidth": 140,
+
+    // Capsule height in resting state, in pixels.
+    "islandHeight": 38,
+
+    // Horizontal position as percentage of screen width.
+    // 0 = left edge, 50 = center, 100 = right edge.
+    "islandPositionX": 50,
+
+
+    // ===========================================================================
+    //  FONTS - Families
+    // ===========================================================================
+
+    // Icon font (requires a Nerd Font for full icon coverage).
+    "iconFontFamily": "JetBrainsMono Nerd Font",
+
+    // Body / paragraph text font.
+    "textFontFamily": "Inter Display",
+
+    // Heading / hero text font.
+    "heroFontFamily": "Inter Display",
+
+    // Clock / time display font.
+    "timeFontFamily": "Inter Display",
+
+
+    // ===========================================================================
+    //  FONTS - Sizes
+    // ===========================================================================
+
+    // Base pixel size for body text. Small text derives from this (e.g. bodyFontSize - 4).
+    "bodyFontSize": 16,
+
+    // Base pixel size for headings / hero text.
+    "titleFontSize": 20,
+
+    // Base pixel size for icon glyphs.
+    "iconFontSize": 18,
+
+
+    // ===========================================================================
+    //  INTERACTION - Click
+    // ===========================================================================
+
+    // Mouse button for primary click. Qt numbering: 1 = left, 2 = middle, 3 = right.
+    "dynamicIslandPrimaryButton": 1,
+
+    // Action for primary click. See the list of available actions below.
+    "dynamicIslandPrimaryAction": "toggleExpandedPlayer",
+
+    // Mouse button for secondary click.
+    "dynamicIslandSecondaryButton": 3,
+
+    // Action for secondary click.
+    "dynamicIslandSecondaryAction": "toggleControlCenter",
+
+    // ---- Available click actions -----------------------------------------------
+    //  "none"                       Do nothing
+    //  "toggleExpandedPlayer"       Toggle music player
+    //  "openExpandedPlayer"         Open music player
+    //  "closeExpandedPlayer"        Close music player
+    //  "toggleControlCenter"        Toggle control center
+    //  "openControlCenter"          Open control center
+    //  "closeControlCenter"         Close control center
+    //  "toggleOverview"             Toggle workspace overview
+    //  "openOverview"               Open workspace overview
+    //  "closeOverview"              Close workspace overview
+    //  "toggleLyrics"               Toggle lyrics / time
+    //  "showLyrics"                 Show lyrics view
+    //  "showTime"                   Show time capsule
+    //  "restoreRestingCapsule"      Collapse to resting state
+
+
+    // ===========================================================================
+    //  INTERACTION - Left Swipe
+    // ===========================================================================
+
+    // Components shown when swiping left on the island capsule.
+    // Available:  time, date, battery, volume, brightness,
+    //             workspace, cpu, ram, cava
+    "dynamicIslandLeftSwipeItems": ["cava", "battery"],
+
+
+    // ===========================================================================
+    //  WORKSPACE OVERVIEW
+    // ===========================================================================
+
+    // Shortcut setup mode used by tide-island-setup.
+    // Leave empty to let setup offer missing shortcuts.
+    //  "configured"  setup installed the recommended shortcuts
+    //  "manual"  You manage Hyprland shortcuts yourself
+    "hyprlandBindMode": "configured",
+
+    // Mouse button for dragging windows in the overview.
+    "workspaceOverviewWindowDragButton": 1,
+
+    // Current wallpaper file path. The wallpaper picker copies the selected
+    // library image here, then uses this same file for awww and workspace overview.
+    "wallpaperPath": "/home/dott/Pictures/Wallpaper/Away Too Long.jpg",
+
+    // Directory scanned by the wallpaper picker.
+    "wallpaperLibraryPath": "/home/dott/Pictures/Wallpaper",
+
+
+    // ===========================================================================
+    //  POWER - TLP Profile Switching
+    // ===========================================================================
+
+    // Sudo permission mode for TLP power-profile controls.
+    //  "skip"       Disable TLP controls entirely
+    //  "ask"        Prompt for password each time
+    //  "password"   Use the stored password below
+    "tlpPermissionMode": "skip",
+
+    // Sudo password. Only read when tlpPermissionMode is "password".
+    "tlpSudoPassword": "",
+
+
+    // ===========================================================================
+    //  OTHER
+    // ===========================================================================
+
+    // When true, the capsule stays collapsed when a new track starts playing.
+    "disableAutoExpandOnTrackChange": false,
+
+
+    // ===========================================================================
+    //  INTERACTION - Hover
+    // ===========================================================================
+
+    // When true, hovering over the island capsule will automatically expand it.
+    "enableHoverExpand": false,
+
+    // What to expand when hovering.
+    //  1 = Music Player (expanded player view)
+    //  2 = Control Center
+    "hoverExpandAction": 1
+}

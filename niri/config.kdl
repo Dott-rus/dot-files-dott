@@ -1,0 +1,399 @@
+// Dott's niri config
+// Converted from ~/.config/hypr/hyprland.conf
+// Target: fast Hyprland -> niri switch, with fixed-ish workspaces and your existing apps.
+
+// -----------------
+// INPUT
+// -----------------
+input {
+    keyboard {
+        xkb {
+            layout "us,ru"
+            options "caps:none"
+        }
+        track-layout "global"
+    }
+
+    touchpad {
+        natural-scroll
+    }
+
+    mouse {
+        accel-profile "flat"
+        accel-speed 0.6
+    }
+
+    focus-follows-mouse
+}
+
+// -----------------
+// MONITORS
+// -----------------
+output "eDP-1" {
+    mode "1920x1080@60.01"
+    position x=0 y=0
+    scale 1
+}
+
+output "HDMI-A-1" {
+    mode "1920x1080@170"
+    position x=1920 y=0
+    scale 1
+    focus-at-startup
+}
+
+// Hyprland-like persistent workspaces.
+// Named workspaces always exist and can be bound to outputs.
+workspace "1" {
+    open-on-output "HDMI-A-1"
+}
+workspace "2" {
+    open-on-output "HDMI-A-1"
+}
+workspace "3" {
+    open-on-output "HDMI-A-1"
+}
+workspace "4" {
+    open-on-output "HDMI-A-1"
+}
+workspace "5" {
+    open-on-output "HDMI-A-1"
+}
+workspace "6" {
+    open-on-output "HDMI-A-1"
+}
+workspace "7" {
+    open-on-output "HDMI-A-1"
+}
+workspace "8" {
+    open-on-output "HDMI-A-1"
+}
+workspace "9" {
+    open-on-output "HDMI-A-1"
+}
+workspace "10" {
+    open-on-output "eDP-1"
+}
+
+// -----------------
+// XWAYLAND
+// -----------------
+// Needed for X11/XWayland apps: some launchers, trays, older Qt/Gtk apps, etc.
+xwayland-satellite {
+    path "xwayland-satellite"
+}
+
+// -----------------
+// LOOK AND FEEL
+// -----------------
+prefer-no-csd
+
+layout {
+    // Hypr: gaps_in=6, gaps_out=16. Niri has one gaps value;
+    // struts emulate extra outer gaps.
+    gaps 6
+
+    struts {
+        left 10
+        right 10
+        top 10
+        bottom 10
+    }
+
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        off
+    }
+
+    border {
+        on
+        width 2
+        active-color "#d4d4d4ee"
+        inactive-color "#4a4a4aaa"
+        urgent-color "#9b0000"
+    }
+
+    shadow {
+        on
+        softness 12
+        spread 3
+        offset x=0 y=3
+        color "#0f0f0fcc"
+    }
+
+    insert-hint {
+        on
+        color "#d4d4d480"
+    }
+}
+
+animations {
+    // Keep default niri animations.
+    // Uncomment for emergency no-animation mode:
+    // off
+}
+
+cursor {
+    xcursor-size 24
+}
+
+environment {
+    XCURSOR_SIZE "24"
+    HYPRCURSOR_SIZE "24"
+    XCURSOR_THEME "elementary"
+    WLR_DRM_DEVICES "/dev/dri/card2:/dev/dri/card1"
+}
+
+screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+// If your niri is older and this fails validation, comment this block.
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+// -----------------
+// AUTOSTART
+// -----------------
+spawn-at-startup "awww-daemon"
+spawn-at-startup "waybar"
+spawn-at-startup "swayosd-server"
+spawn-sh-at-startup "swaync"
+spawn-at-startup "albert"
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
+
+spawn-sh-at-startup "wlsunset -S 07:00 -s 20:00 -t 4000 -T 6500 -d 1800"
+
+spawn-at-startup "aw-qt"
+spawn-at-startup "/usr/bin/aw-watcher-media-player"
+
+// Hyprland-specific ActivityWatch watcher is intentionally not started.
+// Install/use aw-watcher-window-wayland if available.
+spawn-sh-at-startup "if [ -x \"$HOME/.cargo/bin/aw-watcher-window-wayland\" ]; then exec \"$HOME/.cargo/bin/aw-watcher-window-wayland\"; elif command -v aw-watcher-window-wayland >/dev/null 2>&1; then exec aw-watcher-window-wayland; fi"
+
+spawn-at-startup "/usr/bin/flclashx"
+
+// Optional: if some X11 apps still need a fake primary output under xwayland-satellite,
+// uncomment this. Usually you should not need it in niri.
+// spawn-sh-at-startup "sleep 1; xrandr --output HDMI-A-1 --primary || true"
+
+// -----------------
+// WINDOW RULES
+// -----------------
+
+// Global rounded corners, like Hyprland decoration.rounding = 6.
+window-rule {
+    geometry-corner-radius 6
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+// Albert: floating launcher, no border/shadow/decor.
+window-rule {
+    match app-id="albert"
+    match app-id="Albert"
+    open-floating true
+    open-focused true
+
+    border {
+        off
+    }
+    shadow {
+        off
+    }
+}
+
+// flclashx: old Hypr rule sent it to workspace 10.
+window-rule {
+    match app-id="flclashx"
+    match app-id="FlClash"
+    match app-id="flclash"
+    open-on-workspace "10"
+    open-focused false
+}
+
+// Flameshot helper window, if you keep using it.
+//window-rule {
+//    match app-id="flameshot"
+//    open-on-output "HDMI-A-1"
+//}
+
+// Firefox/LibreWolf/Zen Picture-in-Picture as floating.
+window-rule {
+    match app-id="firefox" title="^Picture-in-Picture$"
+    match app-id="librewolf" title="^Picture-in-Picture$"
+    match app-id="zen" title="^Picture-in-Picture$"
+    open-floating true
+    default-floating-position x=32 y=32 relative-to="bottom-right"
+}
+
+// Helpful for terminals that mis-size on first open.
+window-rule {
+    match app-id="Alacritty"
+    match app-id="alacritty"
+    default-column-width { proportion 0.5; }
+}
+
+// -----------------
+// BINDS
+// -----------------
+binds {
+
+
+    Mod+Shift+M { power-off-monitors; }
+
+
+    Mod+Shift+Slash { show-hotkey-overlay; }
+    
+    Mod+Z {spawn "xdotool search --onlyvisible --classname Discord windowactivate --sync key ctrl+shift+m";}
+
+    // Apps
+    Mod+Q { spawn "alacritty"; }
+    Mod+E { spawn "nemo"; }
+    Mod+Space { spawn "albert" "toggle"; }
+
+    // Keyboard layout switch. If Caps_Lock does not trigger because of caps:none,
+    // run `wev` and replace the key name with what it reports.
+    Mod+VoidSymbol { switch-layout "next"; }
+    Alt+Caps_Lock { switch-layout "next"; }
+    Mod+Shift+Caps_Lock { switch-layout "prev"; }
+
+    // Session / window basics
+    Mod+C { close-window; }
+    Mod+M { quit; }
+    Mod+F { fullscreen-window; }
+    Mod+Shift+F { maximize-column; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+V { toggle-window-floating; }
+    Mod+Shift+V { switch-focus-between-floating-and-tiling; }
+
+    // Dwindle-ish replacements.
+    // Hypr pseudo/togglesplit do not exist in niri.
+    Mod+P { switch-preset-column-width; }
+    Mod+J { toggle-column-tabbed-display; }
+
+    // wl-kbptr
+    Mod+A { spawn "wl-kbptr"; }
+    Mod+Shift+A { spawn "pkill" "wl-kbptr"; }
+
+    // Focus: close to your Hypr arrow workflow.
+    Mod+Left  { focus-column-left; }
+    Mod+Right { focus-column-right; }
+    Mod+Up    { focus-window-up; }
+    Mod+Down  { focus-window-down; }
+
+
+    // Move windows/columns.
+    Mod+Shift+Left  { move-column-left; }
+    Mod+Shift+Right { move-column-right; }
+    Mod+Shift+Up    { move-window-up; }
+    Mod+Shift+Down  { move-window-down; }
+
+    // Move focus between monitors.
+    Mod+Ctrl+Left  { focus-monitor-left; }
+    Mod+Ctrl+Right { focus-monitor-right; }
+    Mod+Ctrl+Up    { focus-monitor-up; }
+    Mod+Ctrl+Down  { focus-monitor-down; }
+
+    // Move current column to another monitor.
+    Mod+Ctrl+Shift+Left  { move-column-to-monitor-left; }
+    Mod+Ctrl+Shift+Right { move-column-to-monitor-right; }
+    Mod+Ctrl+Shift+Up    { move-column-to-monitor-up; }
+    Mod+Ctrl+Shift+Down  { move-column-to-monitor-down; }
+
+    // Workspaces: Hypr-like fixed numeric binds via named workspaces.
+    Mod+1 { focus-workspace "1"; }
+    Mod+2 { focus-workspace "2"; }
+    Mod+3 { focus-workspace "3"; }
+    Mod+4 { focus-workspace "4"; }
+    Mod+5 { focus-workspace "5"; }
+    Mod+6 { focus-workspace "6"; }
+    Mod+7 { focus-workspace "7"; }
+    Mod+8 { focus-workspace "8"; }
+    Mod+9 { focus-workspace "9"; }
+    Mod+0 { focus-workspace "10"; }
+
+    // Move active window to workspace. This is closer to Hypr's movetoworkspace
+    // than moving the entire niri column.
+    Mod+Shift+1 { move-window-to-workspace "1"; }
+    Mod+Shift+2 { move-window-to-workspace "2"; }
+    Mod+Shift+3 { move-window-to-workspace "3"; }
+    Mod+Shift+4 { move-window-to-workspace "4"; }
+    Mod+Shift+5 { move-window-to-workspace "5"; }
+    Mod+Shift+6 { move-window-to-workspace "6"; }
+    Mod+Shift+7 { move-window-to-workspace "7"; }
+    Mod+Shift+8 { move-window-to-workspace "8"; }
+    Mod+Shift+9 { move-window-to-workspace "9"; }
+    Mod+Shift+0 { move-window-to-workspace "10"; }
+
+    // Extra: move whole niri column to workspace.
+    Mod+Ctrl+1 { move-column-to-workspace "1"; }
+    Mod+Ctrl+2 { move-column-to-workspace "2"; }
+    Mod+Ctrl+3 { move-column-to-workspace "3"; }
+    Mod+Ctrl+4 { move-column-to-workspace "4"; }
+    Mod+Ctrl+5 { move-column-to-workspace "5"; }
+    Mod+Ctrl+6 { move-column-to-workspace "6"; }
+    Mod+Ctrl+7 { move-column-to-workspace "7"; }
+    Mod+Ctrl+8 { move-column-to-workspace "8"; }
+    Mod+Ctrl+9 { move-column-to-workspace "9"; }
+    Mod+Ctrl+0 { move-column-to-workspace "10"; }
+
+    // Hypr special workspace replacement: use overview / previous workspace.
+    // There is no direct scratchpad in niri.
+    Mod+S { toggle-overview; }
+    Mod+Shift+S { focus-workspace-previous; }
+
+    // Scroll through workspaces.
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+
+    // Horizontal strip scrolling / movement extras.
+    Mod+WheelScrollRight { focus-column-right; }
+    Mod+WheelScrollLeft { focus-column-left; }
+    Mod+Ctrl+WheelScrollRight { move-column-right; }
+    Mod+Ctrl+WheelScrollLeft { move-column-left; }
+
+    // Screenshot: keep your old script, plus native niri fallbacks.
+    Print { spawn-sh "$HOME/.config/hypr/scripts/screenshot.sh"; }
+    Ctrl+Print { screenshot-screen; }
+    Alt+Print { screenshot-window; }
+
+    // Media keys
+    XF86AudioNext allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev allow-when-locked=true { spawn "playerctl" "previous"; }
+    XF86AudioPlay allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
+
+    // swayosd volume/mic/brightness
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "raise"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "swayosd-client" "--output-volume" "lower"; }
+    XF86AudioMute allow-when-locked=true { spawn "swayosd-client" "--output-volume" "mute-toggle"; }
+    XF86AudioMicMute allow-when-locked=true { spawn "swayosd-client" "--input-volume" "mute-toggle"; }
+    XF86MonBrightnessUp allow-when-locked=true { spawn "swayosd-client" "--brightness" "raise"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "swayosd-client" "--brightness" "lower"; }
+
+    // Escape hatch if some app captures shortcuts.
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+}
