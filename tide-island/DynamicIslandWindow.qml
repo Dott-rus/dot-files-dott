@@ -3,6 +3,8 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
 import Quickshell.Services.Mpris
+import Quickshell.Services.SystemTray
+import Quickshell.Widgets
 import IslandBackend
 import "qml/common"
 import "qml/controlcenter"
@@ -314,6 +316,23 @@ PanelWindow {
             islandContainer.smartRestoreState();
         else
             islandContainer.showWallpaperPicker();
+    }
+
+    function timerStart(hours, minutes) {
+        islandContainer.syncTimerDuration(hours, minutes);
+        islandContainer.toggleTimer(hours, minutes);
+    }
+
+    function timerStop() {
+        islandContainer.resetTimer();
+    }
+
+    function timerToggle(hours, minutes) {
+        islandContainer.toggleTimer(hours, minutes);
+    }
+
+    function showLayoutIndicator(layoutName) {
+        layoutPill.show(layoutName);
     }
 
     onOverviewVisibleChanged: {
@@ -1988,6 +2007,7 @@ PanelWindow {
 
             // Mode overlay (focus/gaming)
             Item {
+                id: modeOverlay
                 anchors.fill: parent
                 visible: root.mode !== "normal" && islandContainer.islandState === "normal"
                 z: 10
@@ -1996,7 +2016,7 @@ PanelWindow {
 
                 onVisibleChanged: {
                     if (visible) {
-                        badgeOpacity = 1;
+                        modeOverlay.badgeOpacity = 1;
                         badgeFadeTimer.restart();
                     }
                 }
@@ -2004,7 +2024,7 @@ PanelWindow {
                 Timer {
                     id: badgeFadeTimer
                     interval: 3000
-                    onTriggered: badgeOpacity = 0
+                    onTriggered: modeOverlay.badgeOpacity = 0
                 }
 
                 Text {
@@ -2029,7 +2049,7 @@ PanelWindow {
                     id: trackLabel
                     anchors.left: modeBadge.right
                     anchors.leftMargin: 16
-                    anchors.right: batteryCluster.left
+                    anchors.right: timerCluster.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
                     color: "white"
@@ -2047,6 +2067,49 @@ PanelWindow {
                             return track;
                         }
                         return "No music";
+                    }
+                }
+
+                Item {
+                    id: timerCluster
+                    anchors.right: batteryCluster.left
+                    anchors.rightMargin: 16
+                    anchors.verticalCenter: parent.verticalCenter
+                    visible: islandContainer.timerActive && islandContainer.timerRemainingSeconds > 0
+                    width: timerLabel.implicitWidth + timerIcon.implicitWidth + 4
+                    height: parent.height
+
+                    Text {
+                        id: timerIcon
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "\uF017"
+                        color: StyleTokens.warning
+                        font.pixelSize: root.bodyFontSize
+                        font.family: root.iconFontFamily
+                    }
+
+                    Text {
+                        id: timerLabel
+                        anchors.left: timerIcon.right
+                        anchors.leftMargin: 4
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: "white"
+                        font.pixelSize: root.bodyFontSize
+                        font.family: root.textFontFamily
+                        text: {
+                            const total = islandContainer.timerRemainingSeconds;
+                            const h = Math.floor(total / 3600);
+                            const m = Math.floor((total % 3600) / 60);
+                            const s = total % 60;
+                            if (h > 0) {
+                                return (h < 10 ? "0" : "") + h + ":"
+                                    + (m < 10 ? "0" : "") + m + ":"
+                                    + (s < 10 ? "0" : "") + s;
+                            }
+                            return (m < 10 ? "0" : "") + m + ":"
+                                + (s < 10 ? "0" : "") + s;
+                        }
                     }
                 }
 
@@ -2087,6 +2150,172 @@ PanelWindow {
                 Behavior on opacity {
                     NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
                 }
+            }
+        }
+
+        // System tray
+        Item {
+            id: systemTray
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: mainCapsule.verticalCenter
+            visible: root.mode === "normal"
+                && islandContainer.islandState === "normal"
+                && trayRepeater.count > 0
+                && (systemTray.trayHovered || trayHoverTimer.running)
+            z: 10
+            height: mainCapsule.height
+            width: trayRow.width
+            opacity: systemTray.trayHovered ? 1 : 0.3
+
+            property bool trayHovered: false
+
+            Row {
+                id: trayRow
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 6
+
+                Repeater {
+                    id: trayRepeater
+                    model: SystemTray.items
+
+                    delegate: Item {
+                        width: 24
+                        height: 24
+
+                        IconImage {
+                            anchors.centerIn: parent
+                            width: 20
+                            height: 20
+                            source: model.modelData.icon
+                            smooth: false
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.RightButton) {
+                                    var pos = parent.mapToItem(islandContainer, mouse.x, mouse.y);
+                                    model.modelData.display(root, pos.x, pos.y);
+                                } else {
+                                    model.modelData.activate();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Timer {
+                id: trayHoverTimer
+                interval: 300
+                onTriggered: systemTray.trayHovered = false
+            }
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+            }
+        }
+
+        MouseArea {
+            id: trayHoverArea
+            anchors.left: mainCapsule.right
+            anchors.right: parent.right
+            anchors.top: mainCapsule.top
+            anchors.bottom: mainCapsule.bottom
+            visible: root.mode === "normal"
+                && islandContainer.islandState === "normal"
+                && trayRepeater.count > 0
+            hoverEnabled: true
+            z: 9
+            onEntered: {
+                trayHoverTimer.stop();
+                systemTray.trayHovered = true;
+            }
+            onExited: {
+                trayHoverTimer.restart();
+            }
+        }
+
+        // Layout indicator pill
+        Item {
+            id: layoutPill
+            anchors.left: parent.left
+            anchors.verticalCenter: mainCapsule.verticalCenter
+            z: 15
+            height: mainCapsule.height
+            width: layoutLabel.implicitWidth + 24
+            visible: false
+
+            property string layoutName: ""
+            property real slideProgress: 0
+
+            function show(name) {
+                if (slideProgress > 0) {
+                    layoutName = name;
+                    pillTimer.restart();
+                    return;
+                }
+                pillTimer.stop();
+                layoutName = name;
+                visible = true;
+                pillShowAnimation.restart();
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                topLeftRadius: 0
+                topRightRadius: 8
+                bottomLeftRadius: 0
+                bottomRightRadius: 8
+                color: StyleTokens.black
+
+                Text {
+                    id: layoutLabel
+                    anchors.centerIn: parent
+                    text: layoutPill.layoutName
+                    color: "white"
+                    font.pixelSize: root.bodyFontSize - 2
+                    font.family: root.textFontFamily
+                    elide: Text.ElideRight
+                }
+            }
+
+            transform: Translate {
+                x: layoutPill.width * (layoutPill.slideProgress - 1)
+            }
+
+            NumberAnimation {
+                id: pillShowAnimation
+                target: layoutPill
+                property: "slideProgress"
+                from: 0
+                to: 1
+                duration: 400
+                easing.type: Easing.OutQuint
+                onFinished: pillTimer.restart()
+            }
+
+            NumberAnimation {
+                id: pillHideAnimation
+                target: layoutPill
+                property: "slideProgress"
+                from: layoutPill.slideProgress
+                to: 0
+                duration: 400
+                easing.type: Easing.OutQuint
+                onFinished: layoutPill.visible = false
+            }
+
+            Timer {
+                id: pillTimer
+                interval: 2000
+                onTriggered: pillHideAnimation.restart()
+            }
+
+            Behavior on opacity {
+                NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
             }
         }
 

@@ -1,6 +1,9 @@
+//@ pragma UseQApplication
+
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Hyprland._Ipc
 import Quickshell.Io
 import IslandBackend
 
@@ -142,8 +145,16 @@ Scope {
             shellRoot.forFocusedWindow((window) => window.toggleWallpaperPickerWindow());
         }
 
-        function setMode(mode) {
-            shellRoot.setMode(mode);
+        function modeNormal() {
+            shellRoot.setMode("normal");
+        }
+
+        function modeFocus() {
+            shellRoot.setMode("focus");
+        }
+
+        function modeGaming() {
+            shellRoot.setMode("gaming");
         }
 
         function toggleFocus() {
@@ -152,6 +163,38 @@ Scope {
 
         function toggleGaming() {
             shellRoot.toggleGaming();
+        }
+
+        function timerStop() {
+            shellRoot.forFocusedWindow((window) => window.timerStop());
+        }
+
+        function timerToggle() {
+            shellRoot.forFocusedWindow((window) => window.timerToggle(0, 5));
+        }
+
+        function timerCustom() {
+            timerReader.running = true;
+        }
+    }
+
+    Process {
+        id: timerReader
+        command: ["cat", "/tmp/tide-timer-duration"]
+        running: false
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: function(data) {
+                var text = String(data).trim();
+                if (text === "") return;
+                var parts = text.split(":");
+                if (parts.length === 2) {
+                    var h = parseInt(parts[0]) || 0;
+                    var m = parseInt(parts[1]) || 0;
+                    if (h > 0 || m > 0)
+                        shellRoot.forFocusedWindow((window) => window.timerStart(h, m));
+                }
+            }
         }
     }
 
@@ -167,6 +210,27 @@ Scope {
 
         function onNotificationReceived(appName, summary, body) {
             shellRoot.showNotificationAll(appName, summary, body);
+        }
+    }
+
+    property string __lastLayout: ""
+
+    Connections {
+        target: Hyprland
+
+        function onRawEvent(event) {
+            if (event.name === "activelayout") {
+                var parts = event.data.split(",");
+                if (parts.length >= 2) {
+                    var layoutName = parts.slice(1).join(",").trim();
+                    if (layoutName === shellRoot.__lastLayout) return;
+                    shellRoot.__lastLayout = layoutName;
+                    shellRoot.forFocusedWindow(function(window) {
+                        if (window && window.showLayoutIndicator)
+                            window.showLayoutIndicator(layoutName);
+                    });
+                }
+            }
         }
     }
 

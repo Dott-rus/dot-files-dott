@@ -19,14 +19,72 @@ Three panel modes: `normal`, `focus`, `gaming`.
   - Battery level with icon on the right (color-coded for charging / low battery)
 - Transition between modes is animated (400ms OutQuint).
 
-### IPC Commands
+### Timer
+
+Built-in countdown timer (no external backend) controlled via IPC.
 
 ```bash
-quickshell ipc -p ~/.config/tide-island call tide setMode normal
-quickshell ipc -p ~/.config/tide-island call tide setMode focus
-quickshell ipc -p ~/.config/tide-island call tide setMode gaming
+# via IPC directly
+quickshell ipc -p ~/.config/tide-island call tide timerStop
+quickshell ipc -p ~/.config/tide-island call tide timerToggle     # 5 min default
+quickshell ipc -p ~/.config/tide-island call tide timerCustom     # reads /tmp/tide-timer-duration
+
+# via helper script (recommended)
+tide-timer 25           # 25 minutes
+tide-timer 1:30         # 1 hour 30 minutes
+tide-timer stop
+tide-timer toggle       # 5 minutes
+```
+
+The `tide-timer` script is in `~/.local/bin/`. It writes the duration to `/tmp/tide-timer-duration` and calls `timerCustom` IPC, which reads the file via a `Process` + `SplitParser`.
+
+Timer displays as a small popcorn bubble to the right of the capsule in normal mode, and in the mode overlay info bar in focus/gaming mode. Completion triggers a pulsing glow animation.
+
+### System Tray
+
+Native StatusNotifier system tray (`Quickshell.Services.SystemTray`):
+
+- Positioned at the right edge of the screen, next to the capsule.
+- **Hover-to-show**: hidden by default; appears when hovering to the right of the capsule (300ms delay before hiding).
+- **Left-click** activates the tray item.
+- **Right-click** opens the context menu (requires `//@ pragma UseQApplication` in `shell.qml` for platform menu support).
+- `//@ pragma UseQApplication` enables Qt platform menus for tray right-click.
+
+### Keyboard Layout Indicator
+
+A pill on the **left edge** of the screen that slides in when the keyboard layout changes:
+
+- Connects to Hyprland's `rawEvent` signal (`Quickshell.Hyprland._Ipc`).
+- Filters for `activelayout` events, deduplicates rapid changes.
+- Slides in from the left (400ms OutQuint), stays for 2 seconds, slides out.
+- Only **bottom-right** and **top-right** corners are rounded (8px); left corners are square against the screen edge.
+- Shows the full layout name (e.g., "English (US)", "Russian").
+- Hot-updates text if layout changes while visible, extending the display timer.
+
+### IPC Commands
+
+All IPC handlers are under the `tide` target. No arguments supported (Quickshell 0.3.0 limitation):
+
+```bash
+# Modes
+quickshell ipc -p ~/.config/tide-island call tide modeNormal
+quickshell ipc -p ~/.config/tide-island call tide modeFocus
+quickshell ipc -p ~/.config/tide-island call tide modeGaming
 quickshell ipc -p ~/.config/tide-island call tide toggleFocus
 quickshell ipc -p ~/.config/tide-island call tide toggleGaming
+
+# Timer
+quickshell ipc -p ~/.config/tide-island call tide timerStop
+quickshell ipc -p ~/.config/tide-island call tide timerToggle
+quickshell ipc -p ~/.config/tide-island call tide timerCustom
+
+# Existing
+quickshell ipc -p ~/.config/tide-island call tide showClock
+quickshell ipc -p ~/.config/tide-island call tide showCustom
+quickshell ipc -p ~/.config/tide-island call tide showLyrics
+quickshell ipc -p ~/.config/tide-island call tide togglePlayer
+quickshell ipc -p ~/.config/tide-island call tide toggleControlCenter
+quickshell ipc -p ~/.config/tide-island call tide toggleWallpaperPicker
 ```
 
 ### Hyprland Keybinds
@@ -39,13 +97,23 @@ Added to `conf/binds.lua`:
 | `MOD + F10` | Toggle gaming mode |
 | `MOD + F11` | Set normal mode |
 
+Keybinds are layout-independent (`resolve_binds_by_sym = false` in `conf/input.lua`).
+
+### Dependencies
+
+- `quickshell >= 0.3.0` (uses `IpcHandler`, `UntypedObjectModel`, `FileView`, `Process`, `Socket`)
+- `Quickshell.Services.SystemTray` — system tray support
+- `Quickshell.Hyprland._Ipc` — Hyprland event socket (`rawEvent` for layout detection)
+
 ### Changes
 
-| File | Line(s) | What |
-|---|---|---|
-| `shell.qml` | 14, 71–82, 145–155 | `mode` state, `setMode()`/`toggleFocus()`/`toggleGaming()`, IPC handlers |
-| `DynamicIslandWindow.qml` | 44–46, 1339, 1359, 1377, 1394, 1420, 1287, 1988–2100 | Mode-aware capsule sizing, mode overlay with badge/track/battery, disable auto-expand on track change in non-normal modes |
-| `conf/binds.lua` | 213–230 | Hyprland keybinds for mode toggling |
+| File | What |
+|---|---|
+| `shell.qml` | `//@ pragma UseQApplication`, mode state, IPC handlers (mode/focus/timer/layout), `Process` for timer reader, `Connections` for Hyprland rawEvent |
+| `DynamicIslandWindow.qml` | Mode-aware capsule sizing, mode overlay (badge/track/timer/battery), system tray, timer bubble, layout indicator pill, `resetTimer()` |
+| `conf/binds.lua` | Hyprland keybinds for mode toggling |
+| `conf/input.lua` | `resolve_binds_by_sym = false` for layout-independent binds |
+| `~/.local/bin/tide-timer` | Shell script for timer control |
 
 ---
 

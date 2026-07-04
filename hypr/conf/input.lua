@@ -2,7 +2,7 @@ hl.config({
   input = {
     kb_layout = "us,ru",
     kb_options = "caps:none",
-    resolve_binds_by_sym = true,
+    resolve_binds_by_sym = false,
 
     follow_mouse = 1,
     sensitivity = 0.6,

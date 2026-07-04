@@ -225,6 +225,6 @@ bind(
 
 bind(
 	MOD .. " + F11",
-	hl.dsp.exec_cmd("/usr/bin/quickshell ipc -p $HOME/.config/tide-island call tide setMode normal"),
+	hl.dsp.exec_cmd("/usr/bin/quickshell ipc -p $HOME/.config/tide-island call tide modeNormal"),
 	"Normal panel mode"
 )
