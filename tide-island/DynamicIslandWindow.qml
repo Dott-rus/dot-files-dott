@@ -1200,7 +1200,10 @@ PanelWindow {
 
         function showWorkspaceCapsule(wsId) {
             currentWs = wsId;
-            if (root.mode !== "normal") return;
+            if (root.mode !== "normal") {
+                modeOverlay.showWorkspace(wsId);
+                return;
+            }
             if (islandState === "control_center" || islandState === "notification") return;
             const animateFromSide = currentTransientOriginSide();
             clearTransientCapsule();
@@ -2013,10 +2016,47 @@ PanelWindow {
                 visible: root.mode !== "normal" && islandContainer.islandState === "normal"
                 z: 10
 
+                function showWorkspace(wsId) {
+                    wsLabel.text = "\uF0C8  " + wsId;
+                    wsLabel.opacity = 1;
+                    wsHideTimer.restart();
+                }
+
+                Text {
+                    id: wsLabel
+                    anchors.left: parent.left
+                    anchors.leftMargin: 20
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: StyleTokens.textSecondary
+                    font.pixelSize: root.bodyFontSize
+                    font.family: root.heroFontFamily
+                    font.weight: Font.DemiBold
+                    opacity: 0
+
+                    Behavior on opacity {
+                        NumberAnimation { duration: 300; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                Timer {
+                    id: wsHideTimer
+                    interval: 3000
+                    onTriggered: {
+                        wsLabel.opacity = 0;
+                        wsClearTextTimer.restart();
+                    }
+                }
+
+                Timer {
+                    id: wsClearTextTimer
+                    interval: 350
+                    onTriggered: wsLabel.text = ""
+                }
+
                 Text {
                     id: trackLabel
                     anchors.left: parent.left
-                    anchors.leftMargin: 20
+                    anchors.leftMargin: wsLabel.text !== "" ? wsLabel.anchors.leftMargin + wsLabel.implicitWidth + 16 : 20
                     anchors.right: timerCluster.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
