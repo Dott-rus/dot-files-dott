@@ -1200,6 +1200,7 @@ PanelWindow {
 
         function showWorkspaceCapsule(wsId) {
             currentWs = wsId;
+            if (root.mode !== "normal") return;
             if (islandState === "control_center" || islandState === "notification") return;
             const animateFromSide = currentTransientOriginSide();
             clearTransientCapsule();
