@@ -8,16 +8,18 @@ Based on the incredible work of [Swen](https://github.com/enhaoswen/Tide-island)
 
 ## Modifications by dott + DeepSeek (opencode)
 
-### Focus / Gaming Mode
+### Gaming Mode
 
-Three panel modes: `normal`, `focus`, `gaming`.
+Two panel modes: `normal`, `gaming`.
 
 - **normal** — original compact capsule behavior.
-- **focus** / **gaming** — the capsule stretches to full screen width (no border radius, y=0, height 60px) and shows a wide info bar:
-  - Small mode badge (`FOCUS` / `GAMING`) that fades out after 3 seconds
+- **gaming** — the capsule stretches to full screen width (no border radius, y=0, height 60px) and shows a wide info bar:
+  - Small `GAMING` badge that fades out after 3 seconds
   - Currently playing track (`TITLE - ARTIST` from MPRIS) on the left
+  - Countdown timer (right of track)
   - Battery level with icon on the right (color-coded for charging / low battery)
-- Transition between modes is animated (400ms OutQuint).
+- Gaps and window rounding are set to 0 on enter, restored on exit.
+- Transition is animated (400ms OutQuint).
 
 ### Timer
 
@@ -38,7 +40,7 @@ tide-timer toggle       # 5 minutes
 
 The `tide-timer` script is in `~/.local/bin/`. It writes the duration to `/tmp/tide-timer-duration` and calls `timerCustom` IPC, which reads the file via a `Process` + `SplitParser`.
 
-Timer displays as a small popcorn bubble to the right of the capsule in normal mode, and in the mode overlay info bar in focus/gaming mode. Completion triggers a pulsing glow animation.
+Timer displays as a small popcorn bubble to the right of the capsule in normal mode, and in the mode overlay info bar in gaming mode. Completion triggers a pulsing glow animation.
 
 ### System Tray
 
@@ -68,9 +70,7 @@ All IPC handlers are under the `tide` target. No arguments supported (Quickshell
 ```bash
 # Modes
 quickshell ipc -p ~/.config/tide-island call tide modeNormal
-quickshell ipc -p ~/.config/tide-island call tide modeFocus
 quickshell ipc -p ~/.config/tide-island call tide modeGaming
-quickshell ipc -p ~/.config/tide-island call tide toggleFocus
 quickshell ipc -p ~/.config/tide-island call tide toggleGaming
 
 # Timer
@@ -93,9 +93,7 @@ Added to `conf/binds.lua`:
 
 | Key | Action |
 |---|---|
-| `MOD + F9` | Toggle focus mode |
-| `MOD + F10` | Toggle gaming mode |
-| `MOD + F11` | Set normal mode |
+| `MOD + F9` | Toggle gaming mode |
 
 Keybinds are layout-independent (`resolve_binds_by_sym = false` in `conf/input.lua`).
 
@@ -109,11 +107,12 @@ Keybinds are layout-independent (`resolve_binds_by_sym = false` in `conf/input.l
 
 | File | What |
 |---|---|
-| `shell.qml` | `//@ pragma UseQApplication`, mode state, IPC handlers (mode/focus/timer/layout), `Process` for timer reader, `Connections` for Hyprland rawEvent |
+| `shell.qml` | `//@ pragma UseQApplication`, mode state, IPC handlers (mode/gaming/timer/layout), `Process` for timer reader, `hyprGamingProcess` for gaps/rounding, `Connections` for Hyprland rawEvent |
 | `DynamicIslandWindow.qml` | Mode-aware capsule sizing, mode overlay (badge/track/timer/battery), system tray, timer bubble, layout indicator pill, `resetTimer()` |
 | `conf/binds.lua` | Hyprland keybinds for mode toggling |
 | `conf/input.lua` | `resolve_binds_by_sym = false` for layout-independent binds |
 | `~/.local/bin/tide-timer` | Shell script for timer control |
+| `~/.local/bin/tide-hypr-gaming` | Shell script to save/restore gaps & rounding for gaming mode |
 
 ---
 

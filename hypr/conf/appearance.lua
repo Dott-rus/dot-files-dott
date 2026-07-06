@@ -58,14 +58,16 @@ hl.config({
   },
 })
 
--- A tiny bit less “rubber UI”, more “snappy terminal gremlin”.
-hl.curve("dottOut", { type = "bezier", points = { {0.16, 1}, {0.3, 1} } })
-hl.curve("dottIn",  { type = "bezier", points = { {0.4, 0}, {1, 1} } })
+-- Soft spring curves — fluid with visible motion, not micro-wobbles.
+-- Lower stiffness = slower spring travel, visible bounce.
+hl.curve("springSnap",   { type = "spring", mass = 1, stiffness = 120, dampening = 18 })
+hl.curve("springSmooth", { type = "spring", mass = 1, stiffness = 70,  dampening = 13 })
+hl.curve("springBounce", { type = "spring", mass = 1, stiffness = 50,  dampening = 9 })
 
-hl.animation({ leaf = "global", enabled = true, speed = 8, bezier = "dottOut" })
-hl.animation({ leaf = "windows", enabled = true, speed = 5, bezier = "dottOut" })
-hl.animation({ leaf = "windowsIn", enabled = true, speed = 5, bezier = "dottOut", style = "popin 88%" })
-hl.animation({ leaf = "windowsOut", enabled = true, speed = 4, bezier = "dottIn", style = "popin 88%" })
-hl.animation({ leaf = "fade", enabled = true, speed = 5, bezier = "dottOut" })
-hl.animation({ leaf = "border", enabled = true, speed = 6, bezier = "dottOut" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 6, bezier = "dottOut", style = "slidefade" })
+hl.animation({ leaf = "global", enabled = true, speed = 8, spring = "springSnap" })
+hl.animation({ leaf = "windows", enabled = true, speed = 7, spring = "springSnap" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 6, spring = "springBounce", style = "popin 88%" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 7, spring = "springSmooth", style = "popin 88%" })
+hl.animation({ leaf = "fade", enabled = true, speed = 7, spring = "springSmooth" })
+hl.animation({ leaf = "border", enabled = true, speed = 6, spring = "springSnap" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 9, spring = "springSmooth", style = "slidefade 30%" })

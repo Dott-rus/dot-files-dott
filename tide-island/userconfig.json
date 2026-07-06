@@ -102,7 +102,7 @@
     // Leave empty to let setup offer missing shortcuts.
     //  "configured"  setup installed the recommended shortcuts
     //  "manual"  You manage Hyprland shortcuts yourself
-    "hyprlandBindMode": "configured",
+    "hyprlandBindMode": "manual",
 
     // Mouse button for dragging windows in the overview.
     "workspaceOverviewWindowDragButton": 1,

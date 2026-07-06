@@ -72,16 +72,18 @@ Scope {
     }
 
     function setMode(mode) {
-        if (["normal", "focus", "gaming"].indexOf(mode) !== -1)
+        if (["normal", "gaming"].indexOf(mode) !== -1) {
+            var oldMode = shellRoot.mode;
             shellRoot.mode = mode;
-    }
-
-    function toggleFocus() {
-        shellRoot.mode = shellRoot.mode === "focus" ? "normal" : "focus";
+            if (mode === "gaming" && oldMode !== "gaming")
+                hyprGamingProcess.command = ["tide-hypr-gaming", "on"];
+            else if (oldMode === "gaming" && mode !== "gaming")
+                hyprGamingProcess.command = ["tide-hypr-gaming", "off"];
+        }
     }
 
     function toggleGaming() {
-        shellRoot.mode = shellRoot.mode === "gaming" ? "normal" : "gaming";
+        shellRoot.setMode(shellRoot.mode === "gaming" ? "normal" : "gaming");
     }
 
     function forFocusedWindow(callback) {
@@ -149,16 +151,8 @@ Scope {
             shellRoot.setMode("normal");
         }
 
-        function modeFocus() {
-            shellRoot.setMode("focus");
-        }
-
         function modeGaming() {
             shellRoot.setMode("gaming");
-        }
-
-        function toggleFocus() {
-            shellRoot.toggleFocus();
         }
 
         function toggleGaming() {
@@ -196,6 +190,11 @@ Scope {
                 }
             }
         }
+    }
+
+    Process {
+        id: hyprGamingProcess
+        running: false
     }
 
     GlobalShortcut {

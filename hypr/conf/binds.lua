@@ -213,18 +213,6 @@ bind(
 -- Panel modes
 bind(
 	MOD .. " + F9",
-	hl.dsp.exec_cmd("/usr/bin/quickshell ipc -p $HOME/.config/tide-island call tide toggleFocus"),
-	"Toggle focus mode"
-)
-
-bind(
-	MOD .. " + F10",
 	hl.dsp.exec_cmd("/usr/bin/quickshell ipc -p $HOME/.config/tide-island call tide toggleGaming"),
 	"Toggle gaming mode"
-)
-
-bind(
-	MOD .. " + F11",
-	hl.dsp.exec_cmd("/usr/bin/quickshell ipc -p $HOME/.config/tide-island call tide modeNormal"),
-	"Normal panel mode"
 )

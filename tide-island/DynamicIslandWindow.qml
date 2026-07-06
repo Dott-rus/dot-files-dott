@@ -2032,7 +2032,7 @@ PanelWindow {
                     anchors.left: parent.left
                     anchors.leftMargin: 20
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.mode === "focus" ? "\uf06e  FOCUS" : "\uf11b  GAMING"
+                    text: "\uf11b  GAMING"
                     color: StyleTokens.textSecondary
                     font.pixelSize: root.bodyFontSize - 6
                     font.family: root.heroFontFamily
