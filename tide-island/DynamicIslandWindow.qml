@@ -97,7 +97,7 @@ PanelWindow {
             Math.ceil(root.controlCenterWindowHeight)
         )
         : Math.max(Math.ceil(4 + root.connectivityDetailHeight + 12), Math.ceil(root.controlCenterWindowHeight))
-    exclusiveZone: 4 + userConfig.islandHeight + 3
+    exclusiveZone: root.mode !== "normal" ? 60 : 4 + userConfig.islandHeight + 3
     aboveWindows: true
     focusable: islandContainer.wallpaperPickerLayerVisible
         || islandContainer.expandedPlayerKeyboardFocusRequested
@@ -2012,43 +2012,10 @@ PanelWindow {
                 visible: root.mode !== "normal" && islandContainer.islandState === "normal"
                 z: 10
 
-                property real badgeOpacity: 1
-
-                onVisibleChanged: {
-                    if (visible) {
-                        modeOverlay.badgeOpacity = 1;
-                        badgeFadeTimer.restart();
-                    }
-                }
-
-                Timer {
-                    id: badgeFadeTimer
-                    interval: 3000
-                    onTriggered: modeOverlay.badgeOpacity = 0
-                }
-
-                Text {
-                    id: modeBadge
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "\uf11b  GAMING"
-                    color: StyleTokens.textSecondary
-                    font.pixelSize: root.bodyFontSize - 6
-                    font.family: root.heroFontFamily
-                    font.weight: Font.DemiBold
-                    opacity: modeOverlay.badgeOpacity
-                    z: 2
-
-                    Behavior on opacity {
-                        NumberAnimation { duration: 400; easing.type: Easing.InOutQuad }
-                    }
-                }
-
                 Text {
                     id: trackLabel
-                    anchors.left: modeBadge.right
-                    anchors.leftMargin: 16
+                    anchors.left: parent.left
+                    anchors.leftMargin: 20
                     anchors.right: timerCluster.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
