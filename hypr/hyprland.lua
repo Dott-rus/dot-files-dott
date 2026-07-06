@@ -12,6 +12,7 @@ local modules = {
 	"conf.rules",
 	"conf.binds",
 	"conf.hooks",
+	"conf.active-override",
 }
 
 local function safe_require(name)

@@ -75,10 +75,13 @@ Scope {
         if (["normal", "gaming"].indexOf(mode) !== -1) {
             var oldMode = shellRoot.mode;
             shellRoot.mode = mode;
-            if (mode === "gaming" && oldMode !== "gaming")
-                hyprGamingProcess.command = ["tide-hypr-gaming", "on"];
-            else if (oldMode === "gaming" && mode !== "gaming")
-                hyprGamingProcess.command = ["tide-hypr-gaming", "off"];
+            if (mode === "gaming" && oldMode !== "gaming") {
+                hyprGamingProcess.command = ["/home/dott/.local/bin/tide-hypr-gaming", "on"];
+                hyprGamingProcess.running = true;
+            } else if (oldMode === "gaming" && mode !== "gaming") {
+                hyprGamingProcess.command = ["/home/dott/.local/bin/tide-hypr-gaming", "off"];
+                hyprGamingProcess.running = true;
+            }
         }
     }
 

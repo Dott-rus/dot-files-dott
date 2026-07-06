@@ -2037,7 +2037,7 @@ PanelWindow {
                     font.pixelSize: root.bodyFontSize - 6
                     font.family: root.heroFontFamily
                     font.weight: Font.DemiBold
-                    opacity: badgeOpacity
+                    opacity: modeOverlay.badgeOpacity
                     z: 2
 
                     Behavior on opacity {

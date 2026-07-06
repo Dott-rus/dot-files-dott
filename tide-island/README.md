@@ -18,7 +18,7 @@ Two panel modes: `normal`, `gaming`.
   - Currently playing track (`TITLE - ARTIST` from MPRIS) on the left
   - Countdown timer (right of track)
   - Battery level with icon on the right (color-coded for charging / low battery)
-- Gaps and window rounding are set to 0 on enter, restored on exit.
+- Performance toggles on enter: gaps_in=0, gaps_out=0, border_size=0, rounding=0, shadow=off, blur=off, animations=off. Restored on exit via config reload.
 - Transition is animated (400ms OutQuint).
 
 ### Timer
