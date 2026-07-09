@@ -52,37 +52,54 @@ PanelWindow {
         }
     }
 
-    Image {
-        id: wallpaperImage
+    Rectangle {
+        id: debugBg
         anchors.fill: parent
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-        cache: false
-        source: ""
+        color: "#ff6600"
+        opacity: 0.5
+        z: 1
+    }
+
+    Item {
+        id: parallaxLayer
+        anchors.fill: parent
+        z: 2
+
+        Rectangle {
+            id: debugPill
+            width: 200
+            height: 100
+            anchors.centerIn: parent
+            color: "#000000"
+            opacity: 0.8
+            radius: 12
+
+            Text {
+                anchors.centerIn: parent
+                color: "white"
+                font.pixelSize: 20
+                font.family: "monospace"
+                text: "tide-wallpaper"
+            }
+        }
 
         readonly property real normX: {
             const w = root.width;
             if (w <= 0) return 0.5;
-            const relX = root.cursorX - root.screen.geometry.x;
+            const relX = root.cursorX - (root.screen ? root.screen.geometry.x : 0);
             return Math.max(0, Math.min(1, relX / w));
         }
         readonly property real normY: {
             const h = root.height;
             if (h <= 0) return 0.5;
-            const relY = root.cursorY - root.screen.geometry.y;
+            const relY = root.cursorY - (root.screen ? root.screen.geometry.y : 0);
             return Math.max(0, Math.min(1, relY / h));
         }
 
-        scale: 1.05
         x: (normX - 0.5) * -2 * root.maxOffset
         y: (normY - 0.5) * -2 * root.maxOffset
 
         Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
         Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
-    }
-
-    onWallpaperPathChanged: {
-        if (wallpaperPath !== "")
-            wallpaperImage.source = "file://" + wallpaperPath;
     }
 }
