@@ -7,17 +7,23 @@ PanelWindow {
 
     property string wallpaperPath: ""
     property real maxOffset: 8
-    property real cursorX: -1
-    property real cursorY: -1
+    property real cursorX: 0.5
+    property real cursorY: 0.5
 
     anchors { top: true; bottom: true; left: true; right: true }
     WlrLayershell.layer: WlrLayer.Overlay
     color: "transparent"
 
+    Item {
+        id: coordHelper
+        anchors.fill: parent
+        visible: false
+    }
+
     function applyParallax(gx, gy) {
-        cursorX = gx;
-        cursorY = gy;
-        debugText.text = "path: " + wallpaperPath + "\ncur: " + gx + ", " + gy;
+        var local = coordHelper.mapFromGlobal(gx, gy);
+        cursorX = local.x;
+        cursorY = local.y;
     }
 
     function reloadWallpaper(path) {
@@ -80,28 +86,11 @@ PanelWindow {
 
     onWallpaperPathChanged: {
         if (wallpaperPath !== "") {
-            debugText.text = "path: " + wallpaperPath + "\nloading...";
             wallpaperImage.source = "file://" + wallpaperPath;
         }
     }
 
     Rectangle {
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.margins: 10
-        width: debugText.width + 20
-        height: debugText.height + 20
-        color: "#88000000"
-        radius: 8
-        z: 10
-
-        Text {
-            id: debugText
-            anchors.centerIn: parent
-            color: "#00ff00"
-            font.pixelSize: 14
-            font.family: "monospace"
-            text: "waiting..."
-        }
+        visible: false
     }
 }

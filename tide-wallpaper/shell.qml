@@ -71,22 +71,13 @@ Scope {
         checkWallpaperMtime();
     }
 
-    Timer {
-        id: cursorTimer
-        interval: 33
-        running: true
-        repeat: true
-        onTriggered: {
-            var proc = cursorReader;
-            proc.running = false;
-            proc.running = true;
-        }
-    }
-
     Process {
         id: cursorReader
-        command: ["hyprctl", "cursorpos"]
-        running: false
+        command: [
+            "sh", "-c",
+            "while true; do hyprctl cursorpos; sleep 0.1; done"
+        ]
+        running: true
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: function(data) {
@@ -95,9 +86,8 @@ Scope {
                 if (parts.length === 2) {
                     var x = parseInt(parts[0]);
                     var y = parseInt(parts[1]);
-                    if (!isNaN(x) && !isNaN(y)) {
+                    if (!isNaN(x) && !isNaN(y))
                         wallpaperLayer.applyParallax(x, y);
-                    }
                 }
             }
         }
