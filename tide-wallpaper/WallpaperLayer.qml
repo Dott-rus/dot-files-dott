@@ -4,9 +4,6 @@ import Quickshell.Wayland
 
 PanelWindow {
     id: root
-    required property var modelData
-    readonly property var screenData: modelData
-
     property string wallpaperPath: ""
     property real fadeDuration: 200
     property real maxOffset: 8
@@ -15,7 +12,6 @@ PanelWindow {
     property real cursorY: 0
 
     color: "transparent"
-    screen: screenData
     anchors { top: true; bottom: true; left: true; right: true }
 
     WlrLayershell.layer: WlrLayer.Bottom
@@ -67,13 +63,13 @@ PanelWindow {
         readonly property real normX: {
             const w = root.width;
             if (w <= 0) return 0.5;
-            const relX = root.cursorX - root.screenData.geometry.x;
+            const relX = root.cursorX - root.screen.geometry.x;
             return Math.max(0, Math.min(1, relX / w));
         }
         readonly property real normY: {
             const h = root.height;
             if (h <= 0) return 0.5;
-            const relY = root.cursorY - root.screenData.geometry.y;
+            const relY = root.cursorY - root.screen.geometry.y;
             return Math.max(0, Math.min(1, relY / h));
         }
 

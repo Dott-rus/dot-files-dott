@@ -9,17 +9,17 @@ Scope {
     property point cursorPos: Qt.point(0, 0)
 
     function onWallpaperFileChanged() {
-        for (var i = 0; i < wallpaperLayers.instances.length; i++) {
-            var wl = wallpaperLayers.instances[i];
-            if (wl) wl.reloadWallpaper(wallpaperPath);
+        for (var i = 0; i < wallpaperLayerRepeater.count; i++) {
+            var item = wallpaperLayerRepeater.itemAt(i);
+            if (item) item.reloadWallpaper(wallpaperPath);
         }
     }
 
     function onCursorUpdated(gx, gy) {
         cursorPos = Qt.point(gx, gy);
-        for (var i = 0; i < wallpaperLayers.instances.length; i++) {
-            var wl = wallpaperLayers.instances[i];
-            if (wl) wl.applyParallax(gx, gy);
+        for (var i = 0; i < wallpaperLayerRepeater.count; i++) {
+            var item = wallpaperLayerRepeater.itemAt(i);
+            if (item) item.applyParallax(gx, gy);
         }
     }
 
@@ -37,28 +37,45 @@ Scope {
                 if (p !== "") shellRoot.wallpaperPath = p;
             }
         }
-        onExited: running = false
+    }
+
+    property int lastWallpaperMtime: 0
+
+    function checkWallpaperMtime() {
+        if (wallpaperPath === "") return;
+        var cmd = ["stat", "-c", "%Y", wallpaperPath];
+        var proc = checkMtimeProcess;
+        proc.command = cmd;
+        proc.running = true;
     }
 
     Process {
-        id: wallpaperWatcher
+        id: checkMtimeProcess
         running: false
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: function(data) {
-                var line = String(data).trim();
-                if (line !== "") shellRoot.onWallpaperFileChanged();
+                var mtime = parseInt(String(data).trim());
+                if (!isNaN(mtime) && mtime > shellRoot.lastWallpaperMtime) {
+                    shellRoot.lastWallpaperMtime = mtime;
+                    shellRoot.onWallpaperFileChanged();
+                }
             }
         }
     }
 
+    Timer {
+        id: pollTimer
+        interval: 2000
+        running: wallpaperPath !== ""
+        repeat: true
+        onTriggered: checkWallpaperMtime()
+    }
+
     onWallpaperPathChanged: {
         if (wallpaperPath === "") return;
-        wallpaperWatcher.command = [
-            "inotifywait", "-m", "-e", "close_write", "--format", "%e",
-            wallpaperPath
-        ];
-        wallpaperWatcher.running = true;
+        pollTimer.running = true;
+        checkWallpaperMtime();
     }
 
     Timer {
@@ -95,16 +112,15 @@ Scope {
     }
 
     Component.onDestruction: {
-        wallpaperWatcher.running = false;
         cursorReader.running = false;
     }
 
-    Variants {
-        id: wallpaperLayers
+    Repeater {
+        id: wallpaperLayerRepeater
         model: Quickshell.screens
 
-        WallpaperLayer {
-            required property var modelData
+        delegate: WallpaperLayer {
+            screen: modelData
             wallpaperPath: shellRoot.wallpaperPath
         }
     }
