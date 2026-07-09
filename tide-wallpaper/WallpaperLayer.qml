@@ -48,36 +48,34 @@ PanelWindow {
         }
     }
 
-    Image {
-        id: wallpaperImage
+    Item {
         anchors.fill: parent
-        fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-        cache: false
-        source: ""
+        clip: true
 
-        onStatusChanged: {
-            if (status === Image.Error)
-                debugText.text += "\nERROR: " + source;
-            else if (status === Image.Ready)
-                debugText.text += "\nREADY";
+        Image {
+            id: wallpaperImage
+            width: parent.width * 1.05
+            height: parent.height * 1.05
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true
+            cache: false
+            source: ""
+
+            readonly property real normX: {
+                if (root.width <= 0) return 0.5;
+                return Math.max(0, Math.min(1, root.cursorX / root.width));
+            }
+            readonly property real normY: {
+                if (root.height <= 0) return 0.5;
+                return Math.max(0, Math.min(1, root.cursorY / root.height));
+            }
+
+            x: (parent.width - width) / 2 + (normX - 0.5) * -2 * root.maxOffset
+            y: (parent.height - height) / 2 + (normY - 0.5) * -2 * root.maxOffset
+
+            Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+            Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
         }
-
-        readonly property real normX: {
-            if (root.width <= 0) return 0.5;
-            return Math.max(0, Math.min(1, root.cursorX / root.width));
-        }
-        readonly property real normY: {
-            if (root.height <= 0) return 0.5;
-            return Math.max(0, Math.min(1, root.cursorY / root.height));
-        }
-
-        scale: 1.05
-        x: (normX - 0.5) * -2 * root.maxOffset
-        y: (normY - 0.5) * -2 * root.maxOffset
-
-        Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
-        Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
     }
 
     onWallpaperPathChanged: {
