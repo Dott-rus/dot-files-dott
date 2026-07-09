@@ -11,8 +11,8 @@ PanelWindow {
     property real cursorY: 0.5
 
     anchors { top: true; bottom: true; left: true; right: true }
-    WlrLayershell.layer: WlrLayer.Overlay
-    color: "transparent"
+    WlrLayershell.layer: WlrLayer.Background
+    color: "#111111"
 
     Item {
         id: coordHelper
@@ -60,9 +60,10 @@ PanelWindow {
 
         Image {
             id: wallpaperImage
-            anchors.fill: parent
+            width: parent.width * 1.05
+            height: parent.height * 1.05
             fillMode: Image.PreserveAspectCrop
-            asynchronous: true
+            asynchronous: false
             cache: false
             source: ""
 
@@ -75,23 +76,11 @@ PanelWindow {
                 return Math.max(0, Math.min(1, root.cursorY / root.height));
             }
 
-            transform: [
-                Scale {
-                    id: imgScale
-                    origin.x: parent.width / 2
-                    origin.y: parent.height / 2
-                    xScale: 1.05
-                    yScale: 1.05
-                },
-                Translate {
-                    id: imgTranslate
-                    x: (wallpaperImage.normX - 0.5) * -2 * root.maxOffset
-                    y: (wallpaperImage.normY - 0.5) * -2 * root.maxOffset
+            x: (parent.width - width) / 2 + (normX - 0.5) * -2 * root.maxOffset
+            y: (parent.height - height) / 2 + (normY - 0.5) * -2 * root.maxOffset
 
-                    Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
-                    Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
-                }
-            ]
+            Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+            Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
         }
     }
 
