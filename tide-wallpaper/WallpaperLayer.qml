@@ -40,7 +40,7 @@ PanelWindow {
         onTriggered: {
             console.log("reloadTimer fired");
             wallpaperImage.source = "";
-            wallpaperImage.source = "file://" + path;
+            wallpaperImage.source = "file://" + encodeURI(path);
             fadeOverlay.opacity = 0;
         }
     }
@@ -121,7 +121,7 @@ PanelWindow {
     onWallpaperPathChanged: {
         if (wallpaperPath !== "") {
             console.log("wallpaperPath set:", wallpaperPath);
-            wallpaperImage.source = "file://" + wallpaperPath;
+            wallpaperImage.source = "file://" + encodeURI(wallpaperPath);
         }
     }
 }

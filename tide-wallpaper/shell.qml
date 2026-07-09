@@ -108,6 +108,7 @@ Scope {
     }
 
     Component.onCompleted: {
+        console.log("tide-wallpaper starting, screens:", Quickshell.screens.length);
         configReader.running = true;
     }
 
