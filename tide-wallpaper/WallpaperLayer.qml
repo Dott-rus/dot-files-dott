@@ -18,7 +18,7 @@ PanelWindow {
     screen: screenData
     anchors { top: true; bottom: true; left: true; right: true }
 
-    WlrLayershell.layer: WlrLayer.Background
+    WlrLayershell.layer: WlrLayer.Bottom
     mask: Region {}
 
     function applyParallax(gx, gy) {

@@ -27,7 +27,7 @@ Scope {
         id: configReader
         command: [
             "sh", "-c",
-            "python3 -c \"import sys,json; print(json.load(open(sys.argv[1]))['wallpaperPath'])\" \"$HOME/.config/tide-island/userconfig.json\""
+            "sed 's|^[[:space:]]*//.*||' \"$HOME/.config/tide-island/userconfig.json\" | python3 -c \"import sys,json; print(json.load(sys.stdin)['wallpaperPath'])\""
         ]
         running: false
         stdout: SplitParser {
