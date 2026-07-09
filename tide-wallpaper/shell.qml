@@ -75,7 +75,7 @@ Scope {
         id: cursorReader
         command: [
             "sh", "-c",
-            "while true; do hyprctl cursorpos; sleep 0.1; done"
+            "while true; do hyprctl cursorpos; sleep 0.2; done"
         ]
         running: true
         stdout: SplitParser {

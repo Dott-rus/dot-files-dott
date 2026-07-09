@@ -60,8 +60,7 @@ PanelWindow {
 
         Image {
             id: wallpaperImage
-            width: parent.width * 1.05
-            height: parent.height * 1.05
+            anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
             cache: false
@@ -76,21 +75,28 @@ PanelWindow {
                 return Math.max(0, Math.min(1, root.cursorY / root.height));
             }
 
-            x: (parent.width - width) / 2 + (normX - 0.5) * -2 * root.maxOffset
-            y: (parent.height - height) / 2 + (normY - 0.5) * -2 * root.maxOffset
+            transform: [
+                Scale {
+                    id: imgScale
+                    origin.x: parent.width / 2
+                    origin.y: parent.height / 2
+                    xScale: 1.05
+                    yScale: 1.05
+                },
+                Translate {
+                    id: imgTranslate
+                    x: (wallpaperImage.normX - 0.5) * -2 * root.maxOffset
+                    y: (wallpaperImage.normY - 0.5) * -2 * root.maxOffset
 
-            Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
-            Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+                    Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+                    Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+                }
+            ]
         }
     }
 
     onWallpaperPathChanged: {
-        if (wallpaperPath !== "") {
+        if (wallpaperPath !== "")
             wallpaperImage.source = "file://" + wallpaperPath;
-        }
-    }
-
-    Rectangle {
-        visible: false
     }
 }
