@@ -73,29 +73,32 @@ Scope {
 
     Timer {
         id: cursorTimer
-        interval: 16
+        interval: 33
         running: true
         repeat: true
         onTriggered: {
-            if (!cursorReader.running)
-                cursorReader.running = true;
+            var proc = cursorReader;
+            proc.running = false;
+            proc.running = true;
         }
     }
 
     Process {
         id: cursorReader
-        command: ["hyprctl", "-j", "cursorpos"]
+        command: ["hyprctl", "cursorpos"]
         running: false
         stdout: SplitParser {
             splitMarker: "\n"
             onRead: function(data) {
                 var raw = String(data).trim();
-                if (raw === "" || raw.charAt(0) !== "{") return;
-                try {
-                    var pos = JSON.parse(raw);
-                    if (pos && typeof pos.x === "number" && typeof pos.y === "number")
-                        wallpaperLayer.applyParallax(pos.x, pos.y);
-                } catch (e) {}
+                var parts = raw.split(",");
+                if (parts.length === 2) {
+                    var x = parseInt(parts[0]);
+                    var y = parseInt(parts[1]);
+                    if (!isNaN(x) && !isNaN(y)) {
+                        wallpaperLayer.applyParallax(x, y);
+                    }
+                }
             }
         }
     }

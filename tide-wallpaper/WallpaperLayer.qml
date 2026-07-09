@@ -7,8 +7,8 @@ PanelWindow {
 
     property string wallpaperPath: ""
     property real maxOffset: 8
-    property real cursorX: 0
-    property real cursorY: 0
+    property real cursorX: -1
+    property real cursorY: -1
 
     anchors { top: true; bottom: true; left: true; right: true }
     WlrLayershell.layer: WlrLayer.Overlay
@@ -17,6 +17,7 @@ PanelWindow {
     function applyParallax(gx, gy) {
         cursorX = gx;
         cursorY = gy;
+        debugText.text = "path: " + wallpaperPath + "\ncur: " + gx + ", " + gy;
     }
 
     function reloadWallpaper(path) {
@@ -32,7 +33,7 @@ PanelWindow {
         interval: 4000
         onTriggered: {
             wallpaperImage.source = "";
-            wallpaperImage.source = "file://" + encodeURI(path);
+            wallpaperImage.source = "file://" + path;
             fadeOverlay.opacity = 0;
         }
     }
@@ -55,17 +56,20 @@ PanelWindow {
         cache: false
         source: ""
 
+        onStatusChanged: {
+            if (status === Image.Error)
+                debugText.text += "\nERROR: " + source;
+            else if (status === Image.Ready)
+                debugText.text += "\nREADY";
+        }
+
         readonly property real normX: {
-            var w = root.width;
-            if (w <= 0) return 0.5;
-            var relX = root.cursorX;
-            return Math.max(0, Math.min(1, relX / w));
+            if (root.width <= 0) return 0.5;
+            return Math.max(0, Math.min(1, root.cursorX / root.width));
         }
         readonly property real normY: {
-            var h = root.height;
-            if (h <= 0) return 0.5;
-            var relY = root.cursorY;
-            return Math.max(0, Math.min(1, relY / h));
+            if (root.height <= 0) return 0.5;
+            return Math.max(0, Math.min(1, root.cursorY / root.height));
         }
 
         scale: 1.05
@@ -77,7 +81,29 @@ PanelWindow {
     }
 
     onWallpaperPathChanged: {
-        if (wallpaperPath !== "")
-            wallpaperImage.source = "file://" + encodeURI(wallpaperPath);
+        if (wallpaperPath !== "") {
+            debugText.text = "path: " + wallpaperPath + "\nloading...";
+            wallpaperImage.source = "file://" + wallpaperPath;
+        }
+    }
+
+    Rectangle {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.margins: 10
+        width: debugText.width + 20
+        height: debugText.height + 20
+        color: "#88000000"
+        radius: 8
+        z: 10
+
+        Text {
+            id: debugText
+            anchors.centerIn: parent
+            color: "#00ff00"
+            font.pixelSize: 14
+            font.family: "monospace"
+            text: "waiting..."
+        }
     }
 }
