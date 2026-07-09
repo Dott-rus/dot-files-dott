@@ -4,6 +4,7 @@ import Quickshell.Wayland
 
 PanelWindow {
     id: root
+
     property string wallpaperPath: ""
     property real fadeDuration: 200
     property real maxOffset: 8
@@ -11,11 +12,13 @@ PanelWindow {
     property real cursorX: 0
     property real cursorY: 0
 
-    color: "transparent"
-    anchors { top: true; bottom: true; left: true; right: true }
+    color: "#0000ff"
+    WlrLayershell.layer: WlrLayer.Overlay
+    aboveWindows: true
 
-    WlrLayershell.layer: WlrLayer.Bottom
-    mask: Region {}
+    Component.onCompleted: {
+        console.log("WallpaperLayer created, screen:", root.screen);
+    }
 
     function applyParallax(gx, gy) {
         cursorX = gx;
@@ -24,6 +27,7 @@ PanelWindow {
 
     function reloadWallpaper(path) {
         if (!path || path === "") return;
+        console.log("reloadWallpaper:", path);
         fadeOverlay.opacity = 1;
         reloadTimer.path = path;
         reloadTimer.restart();
@@ -34,6 +38,7 @@ PanelWindow {
         property string path: ""
         interval: 4000
         onTriggered: {
+            console.log("reloadTimer fired");
             wallpaperImage.source = "";
             wallpaperImage.source = "file://" + path;
             fadeOverlay.opacity = 0;
@@ -101,5 +106,22 @@ PanelWindow {
 
         Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
         Behavior on y { NumberAnimation { duration: 400; easing.type: Easing.OutQuint } }
+    }
+
+    Image {
+        id: wallpaperImage
+        anchors.fill: parent
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true
+        cache: false
+        source: ""
+        z: 0
+    }
+
+    onWallpaperPathChanged: {
+        if (wallpaperPath !== "") {
+            console.log("wallpaperPath set:", wallpaperPath);
+            wallpaperImage.source = "file://" + wallpaperPath;
+        }
     }
 }
