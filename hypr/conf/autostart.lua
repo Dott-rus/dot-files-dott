@@ -11,6 +11,7 @@ end
 hl.on("hyprland.start", function()
   -- once("waybar", "waybar")         -- disabled: replaced by Tide Island
   once("quickshell", "quickshell -p $HOME/.config/tide-island")
+  once_fuzzy("tide-wallpaper/shell\\.qml", "quickshell -p $HOME/.config/tide-wallpaper")
   once("swayosd-server", "swayosd-server")
   once("swaync", "swaync")
   once("albert", "albert")
